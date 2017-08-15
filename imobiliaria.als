@@ -1,6 +1,6 @@
 module imobiliaria
 
-sig ListaEspera{
+one sig ListaEspera{
 	clientes: set Pessoa
 }
 sig Apartamento {
@@ -22,36 +22,46 @@ sig Pessoa{}
 sig ClientePreferencial in Pessoa {}
 
 fact fato {
-	#ListaEspera = 1
 	#Apartamento = 6
 	#Cobertura = 1
 	
 	//Todo apartamento tem um conjunto de quartos
-	all a: Apartamento | tem2ou3Quartos[a]
+	all a: Apartamento | #quartosDoApartamento[a] = 2 or #quartosDoApartamento[a] = 3 
 	//Todo quarto pode ter um morador
 	all q: Quarto | temMorador[q]
     //Todo quarto so esta em 1 apartamento
 	all q: Quarto, a:Apartamento, a1:Apartamento | quartoSoEstaEmUmApt[q,a,a1]
 	//Todo quarto faz parte de um apartamento
-	all q: Quarto |  one q.~quartos
+	all q: Quarto |  one quartosEmConjuntoDeTodosOsQuartos[q]
 	//Toda pessoa so esta em 1 quarto
 	all p: Pessoa, q:Quarto, q1:Quarto | p in q.morador and p in q1.morador => q = q1
 	//cliente ou esta em quarto ou na lista de espera 
-	all l:ListaEspera, q:Quarto | no(l.clientes & q.morador)
+	all l:ListaEspera, q:Quarto | clienteEstaEmQuartoOuListaEspera[l, q]
+	//toda pessoa esta em lista de espera ou em quarto
+	all p:Pessoa | one(p.~morador) or one(p.~clientes)
+	//toda cobertura tem 3 quartos
+	all c:Cobertura | #quartosDaCobertura[c] = 3
 
-
-//	all c:Cobertura, s:Suite | #(c.quartos) = 3  
-
-	
-	
-//	all a:Apartamento, s:Suite | #(a.quartos) = 2 => #(s.~quartos) = 1
-
-	//all a:Apartamento, s:Suite | #(a.quartos) = 3 => #(s.~quartos) = 2
 
 }
-pred tem2ou3Quartos[a:Apartamento] {
-	#(a.quartos) = 2 or #(a.quartos) = 3
+
+fun quartosEmConjuntoDeTodosOsQuartos[q:Quarto]: set Apartamento {
+	q.~quartos
 }
+
+fun quartosDoApartamento[a:Apartamento]: set Quarto {
+	a.quartos
+}
+
+fun quartosDaCobertura[c:Cobertura]: set Quarto {
+	c.quartos
+}
+
+
+pred clienteEstaEmQuartoOuListaEspera[l:ListaEspera, q:Quarto] {
+	no(l.clientes & q.morador)
+}
+
 
 pred temMorador[q:Quarto] {
 	some q.morador
