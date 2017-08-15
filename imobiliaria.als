@@ -40,6 +40,14 @@ fact fato {
 	all l:ListaEspera, q:Quarto | no(l.clientes & q.morador)
 
 
+//	all c:Cobertura, s:Suite | #(c.quartos) = 3  
+
+	
+	
+//	all a:Apartamento, s:Suite | #(a.quartos) = 2 => #(s.~quartos) = 1
+
+	//all a:Apartamento, s:Suite | #(a.quartos) = 3 => #(s.~quartos) = 2
+
 }
 pred tem2ou3Quartos[a:Apartamento] {
 	#(a.quartos) = 2 or #(a.quartos) = 3
@@ -52,6 +60,22 @@ pred temMorador[q:Quarto] {
 pred quartoSoEstaEmUmApt[q: Quarto, a:Apartamento, a1:Apartamento] {
 	q in a.quartos and q in a1.quartos => a = a1
 }
+
+assert apartamentosCom2ou3Quartos {
+	all a:Apartamento | #(a.quartos) = 2 or #(a.quartos) = 3
+}
+
+assert todoQuartoEstaEmUmApt {
+	all q: Quarto |  #(q.~quartos) = 1
+}
+
+assert todaCoberturaPossui3Quartos{
+	all c:Cobertura | #(c.quartos) = 3
+}
+
+check apartamentosCom2ou3Quartos
+check todoQuartoEstaEmUmApt
+check todaCoberturaPossui3Quartos
 
 pred show[]{}
 run show for 30
