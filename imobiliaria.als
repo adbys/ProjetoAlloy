@@ -19,13 +19,15 @@ sig Quarto {
 
 sig Pessoa{}
 
+sig ClientePreferencial in Pessoa {}
+
 fact fato {
 	#ListaEspera = 1
 	#Apartamento = 6
 	#Cobertura = 1
 	
 	//Todo apartamento tem um conjunto de quartos
-	all a: Apartamento | temQuartos[a]
+	all a: Apartamento | tem2ou3Quartos[a]
 	//Todo quarto pode ter um morador
 	all q: Quarto | temMorador[q]
     //Todo quarto so esta em 1 apartamento
@@ -37,9 +39,10 @@ fact fato {
 	//cliente ou esta em quarto ou na lista de espera 
 	all l:ListaEspera, q:Quarto | no(l.clientes & q.morador)
 
+
 }
-pred temQuartos[a:Apartamento] {
-	some a.quartos
+pred tem2ou3Quartos[a:Apartamento] {
+	#(a.quartos) = 2 or #(a.quartos) = 3
 }
 
 pred temMorador[q:Quarto] {
@@ -51,5 +54,5 @@ pred quartoSoEstaEmUmApt[q: Quarto, a:Apartamento, a1:Apartamento] {
 }
 
 pred show[]{}
-run show for 6
+run show for 30
 
