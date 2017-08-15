@@ -3,15 +3,21 @@ module imobiliaria
 one sig ListaEspera{
 	clientes: set Pessoa
 }
-sig Apartamento {
+abstract sig Apartamento {
 	quartos: set Quarto
 }
 sig Suite extends Quarto{
 }
 
 sig Cobertura extends Apartamento {
-
 }
+
+sig ApartamentoPequeno extends Apartamento {
+}
+
+sig ApartamentoGrande extends Apartamento {
+}
+
 
 sig Quarto {
 	morador: Pessoa
@@ -23,10 +29,13 @@ sig ClientePreferencial in Pessoa {}
 
 fact fato {
 	#Apartamento = 6
+	#ApartamentoPequeno = 3
+	#ApartamentoGrande = 2
 	#Cobertura = 1
 	
 	//Todo apartamento tem um conjunto de quartos
-	all a: Apartamento | #quartosDoApartamento[a] = 2 or #quartosDoApartamento[a] = 3 
+	all a: ApartamentoPequeno | #quartosDoApartamento[a] = 2  
+	all a: ApartamentoGrande | #quartosDoApartamento[a] = 3 
 	//Todo quarto pode ter um morador
 	all q: Quarto | temMorador[q]
     //Todo quarto so esta em 1 apartamento
