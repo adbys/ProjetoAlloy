@@ -29,7 +29,7 @@ abstract sig Apartamento {
 }
 
 sig Cobertura extends Apartamento {
-}
+} 
 
 sig ApartamentoPequeno extends Apartamento {
 }
@@ -69,7 +69,11 @@ fact fato {
 	--Cliente ou esta em quarto ou na lista de espera 
 	all p:Pessoa | clienteEstaEmQuartoOuListaEspera[p]
 
+	-- Lista de espera só terá clientes se todos os Apartamentos estiverem alugados
 	all a:Apartamento, l:ListaEspera | #pessoasDoAp[a] = 0 => #l.clientes = 0
+
+	-- Moradores da cobertura sao preferenciais
+	all c:Cobertura, s:Suite, p:Pessoa | p in s.moradorSuite and s in c.suites => p in ClientePreferencial
 }
 
 ----------------------------Funcoes----------------------------
