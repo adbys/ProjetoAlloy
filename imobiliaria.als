@@ -1,14 +1,31 @@
 module imobiliaria
 
+----------------------------Assinaturas----------------------------
 one sig ListaEspera{
 	clientes: set Pessoa
 }
+
+sig Nome {
+}
+
+sig Pessoa{
+	nome: one Nome
+}
+
+sig ClientePreferencial in Pessoa {
+}
+
+sig Quarto {
+	morador: lone Pessoa
+}
+
+sig Suite  {
+	moradorSuite: lone Pessoa
+}
+
 abstract sig Apartamento {
 	quartos: set Quarto,
 	suites: set Suite
-}
-sig Suite  {
-	moradorSuite: Pessoa
 }
 
 sig Cobertura extends Apartamento {
@@ -20,14 +37,7 @@ sig ApartamentoPequeno extends Apartamento {
 sig ApartamentoGrande extends Apartamento {
 }
 
-
-sig Quarto {
-	morador: Pessoa
-}
-
-sig Pessoa{}
-
-sig ClientePreferencial in Pessoa {}
+----------------------------Fatos----------------------------
 
 fact fato {
 	#Apartamento = 6
@@ -35,24 +45,37 @@ fact fato {
 	#ApartamentoGrande = 2
 	#Cobertura = 1
 	
-	//Todo apartamento tem um conjunto de quartos
+	-- Todo nome so esta em uma pessoa
+	all n:Nome, p:Pessoa, p1:Pessoa | n in p.nome and n in p1.nome => p = p1
+	
+	--Todo apartamento tem um conjunto de quartos
 	all a: ApartamentoPequeno | #quartosDoApartamento[a] = 1  and #suitesDoApartamento[a] = 1
 	all a: ApartamentoGrande | #quartosDoApartamento[a] = 1 and #suitesDoApartamento[a] = 2
 	all c: Cobertura | #quartosDoApartamento[c] = 0 and #suitesDoApartamento[c] = 3
-	//Todo quarto pode ter um morador
-	all q: Quarto | temMorador[q]
-    //Todo quarto so esta em 1 apartamento
+    
+	--Todo quarto so esta em 1 apartamento
 	all q: Quarto, a:Apartamento, a1:Apartamento | quartoSoEstaEmUmApt[q,a,a1]
-	//Todo quarto faz parte de um apartamento
+
+	--Todo quarto faz parte de um apartamento
 	all q: Quarto |  one quartosEmConjuntoDeTodosOsQuartos[q]
-	//Todo quarto faz parte de um apartamento
+
+	all n:Nome | one nomesEmConjuntoDeTodosOsNome[n]
+
+	--Todo quarto faz parte de um apartamento
 	all s: Suite |  one suitesEmConjuntoDeTodasAsSuites[s]
-	//Toda pessoa so esta em 1 quarto
-	all p: Pessoa, q:Quarto, q1:Quarto | p in q.morador and p in q1.morador => q = q1
-	//cliente ou esta em quarto ou na lista de espera 
+
+	--Toda pessoa so esta em 1 quarto
+	all p: Pessoa, q:Quarto, q1:Quarto | todaPessoaEmUmQuarto[p,q,q1]
+
+	--Cliente ou esta em quarto ou na lista de espera 
 	all p:Pessoa | clienteEstaEmQuartoOuListaEspera[p]
 
+}
 
+----------------------------Funcoes----------------------------
+
+fun nomesEmConjuntoDeTodosOsNome[n:Nome]: set Pessoa {
+	n.~nome
 }
 
 fun quartosEmConjuntoDeTodosOsQuartos[q:Quarto]: set Apartamento {
@@ -72,24 +95,22 @@ fun quartosDoApartamento[a:Apartamento]: set Quarto {
 	a.quartos
 }
 
-fun quartosDaCobertura[c:Cobertura]: set Quarto {
-	c.quartos
-}
-
+----------------------------Predicados----------------------------
 
 pred clienteEstaEmQuartoOuListaEspera[p:Pessoa] {
 	one(p.~morador) and no(p.~clientes) and no(p.~moradorSuite) or (no(p.~morador) and one(p.~clientes) and no(p.~moradorSuite)) or (no(p.~morador) and no(p.~clientes) and one(p.~moradorSuite)) 
 
 }
 
-
-pred temMorador[q:Quarto] {
-	some q.morador
-}
-
 pred quartoSoEstaEmUmApt[q: Quarto, a:Apartamento, a1:Apartamento] {
 	q in a.quartos and q in a1.quartos => a = a1
 }
+
+pred todaPessoaEmUmQuarto[p:Pessoa, q:Quarto, q1:Quarto] {
+	p in q.morador and p in q1.morador => q = q1
+}
+
+----------------------------Asserts----------------------------
 
 assert apartamentosCom2ou3Quartos {
 	all a:Apartamento | #(a.quartos) = 2 or #(a.quartos) = 3
