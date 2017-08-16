@@ -50,10 +50,7 @@ fact fato {
 	//Toda pessoa so esta em 1 quarto
 	all p: Pessoa, q:Quarto, q1:Quarto | p in q.morador and p in q1.morador => q = q1
 	//cliente ou esta em quarto ou na lista de espera 
-	all l:ListaEspera, q:Quarto | clienteEstaEmQuartoOuListaEspera[l, q]
-	//toda pessoa esta em lista de espera ou em quarto
-	all p:Pessoa | (one(p.~morador) and no(p.~clientes) and no(p.~moradorSuite)) or (no(p.~morador) and one(p.~clientes) and no(p.~moradorSuite)) or (no(p.~morador) and no(p.~clientes) and one(p.~moradorSuite)) 
-
+	all p:Pessoa | clienteEstaEmQuartoOuListaEspera[p]
 
 }
 
@@ -79,8 +76,9 @@ fun quartosDaCobertura[c:Cobertura]: set Quarto {
 }
 
 
-pred clienteEstaEmQuartoOuListaEspera[l:ListaEspera, q:Quarto] {
-	no(l.clientes & q.morador)
+pred clienteEstaEmQuartoOuListaEspera[p:Pessoa] {
+	one(p.~morador) and no(p.~clientes) and no(p.~moradorSuite) or (no(p.~morador) and one(p.~clientes) and no(p.~moradorSuite)) or (no(p.~morador) and no(p.~clientes) and one(p.~moradorSuite)) 
+
 }
 
 
