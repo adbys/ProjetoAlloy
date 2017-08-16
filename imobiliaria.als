@@ -4,9 +4,11 @@ one sig ListaEspera{
 	clientes: set Pessoa
 }
 abstract sig Apartamento {
-	quartos: set Quarto
+	quartos: set Quarto,
+	suites: set Suite
 }
-sig Suite extends Quarto{
+sig Suite  {
+	moradorSuite: Pessoa
 }
 
 sig Cobertura extends Apartamento {
@@ -34,28 +36,38 @@ fact fato {
 	#Cobertura = 1
 	
 	//Todo apartamento tem um conjunto de quartos
-	all a: ApartamentoPequeno | #quartosDoApartamento[a] = 2  
-	all a: ApartamentoGrande | #quartosDoApartamento[a] = 3 
+	all a: ApartamentoPequeno | #quartosDoApartamento[a] = 1  and #suitesDoApartamento[a] = 1
+	all a: ApartamentoGrande | #quartosDoApartamento[a] = 1 and #suitesDoApartamento[a] = 2
+	all c: Cobertura | #quartosDoApartamento[c] = 0 and #suitesDoApartamento[c] = 3
 	//Todo quarto pode ter um morador
 	all q: Quarto | temMorador[q]
     //Todo quarto so esta em 1 apartamento
 	all q: Quarto, a:Apartamento, a1:Apartamento | quartoSoEstaEmUmApt[q,a,a1]
 	//Todo quarto faz parte de um apartamento
 	all q: Quarto |  one quartosEmConjuntoDeTodosOsQuartos[q]
+	//Todo quarto faz parte de um apartamento
+	all s: Suite |  one suitesEmConjuntoDeTodasAsSuites[s]
 	//Toda pessoa so esta em 1 quarto
 	all p: Pessoa, q:Quarto, q1:Quarto | p in q.morador and p in q1.morador => q = q1
 	//cliente ou esta em quarto ou na lista de espera 
 	all l:ListaEspera, q:Quarto | clienteEstaEmQuartoOuListaEspera[l, q]
 	//toda pessoa esta em lista de espera ou em quarto
-	all p:Pessoa | one(p.~morador) or one(p.~clientes)
-	//toda cobertura tem 3 quartos
-	all c:Cobertura | #quartosDaCobertura[c] = 3
+	all p:Pessoa | (one(p.~morador) and no(p.~clientes) and no(p.~moradorSuite)) or (no(p.~morador) and one(p.~clientes) and no(p.~moradorSuite)) or (no(p.~morador) and no(p.~clientes) and one(p.~moradorSuite)) 
 
 
 }
 
 fun quartosEmConjuntoDeTodosOsQuartos[q:Quarto]: set Apartamento {
 	q.~quartos
+}
+
+fun suitesEmConjuntoDeTodasAsSuites[s:Suite]: set Apartamento {
+	s.~suites
+}
+
+
+fun suitesDoApartamento[a:Apartamento]: set Suite {
+	a.suites
 }
 
 fun quartosDoApartamento[a:Apartamento]: set Quarto {
