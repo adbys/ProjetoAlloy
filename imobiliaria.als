@@ -52,6 +52,7 @@ fact fato {
 	//cliente ou esta em quarto ou na lista de espera 
 	all p:Pessoa | clienteEstaEmQuartoOuListaEspera[p]
 
+
 }
 
 fun quartosEmConjuntoDeTodosOsQuartos[q:Quarto]: set Apartamento {
@@ -98,13 +99,19 @@ assert todoQuartoEstaEmUmApt {
 	all q: Quarto |  #(q.~quartos) = 1
 }
 
-assert todaCoberturaPossui3Quartos{
-	all c:Cobertura | #(c.quartos) = 3
+assert todaSuiteEstaEmUmApt {
+	all s: Suite |  #(s.~suites) = 1
+}
+
+
+assert todaCoberturaPossui3Suites{
+	all c:Cobertura | #(c.quartos) = 0 and #(c.suites) = 3
 }
 
 check apartamentosCom2ou3Quartos
 check todoQuartoEstaEmUmApt
-check todaCoberturaPossui3Quartos
+check todaSuiteEstaEmUmApt
+check todaCoberturaPossui3Suites
 
 pred show[]{}
 run show for 30
